@@ -1,6 +1,6 @@
 # html-click-js
 
-A plugin to handle all click interactions to toggle/add/remove a class with custom attributes in HTML. Useful for HTML Developers.
+A jquery plugin to handle all click interactions to toggle/add/remove a class with custom attributes in HTML. Useful for HTML Developers.
 
 - Already included in [HTML-Skinning-Boilerplate](https://github.com/kamlekar/HTML-Skinning-Boilerplate/tree/master/site/assets/libs)
 

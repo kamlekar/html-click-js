@@ -1,18 +1,21 @@
-/* Here all the common interactions will be defined, which are useful while developing HTMLs */
-
-/* Requirement - explanation */
-// Please check this link for explanation: https://github.com/kamlekar/HTML-Skinning-Boilerplate/issues/12
-var htmljs = (function(){ 
+(function(){
 	// Global Variable
 	var ignorableElements = [];
-	var htmlClickElements = function(){
+	function htmlClickElements(){
 		return document.getElementsByClassName('html-click');
 	}
-	var init = function(){
-		// Registering clicks on clickable 
-		[].forEach.call(htmlClickElements(), function(el){
-			el.addEventListener('click', htmlClick, true);
-		});
+	function init(){
+		// Registering clicks on clickable
+		// [].forEach.call(htmlClickElements(), function(el){
+		// 	el.addEventListener('click', htmlClick, true);
+		// });
+		$(document)
+            .on('click', '.html-click', htmlClick)
+            .on('click', '.stop-propagate', stopPropagate);
+
+        function stopPropagate(e){
+            e.stopImmediatePropagation();
+        }
 
 		// Defining outside click actions
 		document.addEventListener('click', function(e){
@@ -20,26 +23,26 @@ var htmljs = (function(){
 			// If user hasn't clicked on the clickable element or target element then reset the performed actions on the clickable element(s) and target element(s) with outside clicking is as active.
 			// (For this, we need to add another common attribute to clicked element and target element)
 			var resettableElements = [].slice.call(htmlClickElements()).filter(function(el){
-				for(var j = 0;j < ignorableElements.length; j++){
-					if(el === ignorableElements[j]){
-						return false;
-					}
-				}
-				return true;
+				return !Array.prototype.some.call(ignorableElements, function(ignorableElement){
+					return el === ignorableElement;
+				});
 			})
-			for(var i = 0; i < resettableElements.length; i++){
-				performActions(resettableElements[i], true);
-			}
+
+			resettableElements.forEach(function(resettableElement){
+				performActions(resettableElement, true);
+			})
 
 			// reset
 			resetIgnoringElements();
 		});
 	}
 
+    init();
+
 	function performActions(clickedElement, doOpposite){
 		var metaInfo = clickedElement.dataset;
 		var referenceOfTargetElement = metaInfo['htmlTarget'];
-		// Adding unique value as custom attribute to fetch the target element relative to the clicked element
+		// Adding unique value as custom attribute
 		clickedElement.setAttribute('data-html-dummy-selector', '1');
 		if(referenceOfTargetElement){
 			// Replace "this " string with custom attribute with value
@@ -50,7 +53,7 @@ var htmljs = (function(){
 		}
 		else{
 			var targetElements = [clickedElement];
-		} 
+		}
 		// After getting the relative element, the added custom attribute is useless
 		// So, remove it
 		clickedElement.removeAttribute('data-html-dummy-selector');
@@ -106,14 +109,13 @@ var htmljs = (function(){
 		// resetting previously active elements
 		var previousIgnorableElements = document.querySelectorAll('[data-html-click-active]');
 		[].forEach.call(previousIgnorableElements, unmarkAsActive);
-		
+
 		var clickedElement = e.currentTarget;
 		performActions(clickedElement);
 	}
 
 	function htmlActions(targetElements, toggleType, targetElementClass, removeActiveHtml){
-		for(var i = 0; i < targetElements.length; i++){
-			var targetElement = targetElements[i];
+		targetElements.forEach(function(targetElement){
 			if(removeActiveHtml){
 				unmarkAsActive(targetElement);
 			}
@@ -123,12 +125,6 @@ var htmljs = (function(){
 			else{
 				// Throw error saying - Please provide class name to add to the target element.
 			}
-		}
-	}
-	return {
-		init: init,
-		click: htmlClick
+		});
 	}
 })();
-
-htmljs.init();
